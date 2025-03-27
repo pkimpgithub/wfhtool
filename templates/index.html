@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WFH Mail Report</title>
+</head>
+<body>
+    <h2>WFH Mail Report</h2>
+
+    <form id="report-form" enctype="multipart/form-data">
+        <label>Upload CSV:</label>
+        <input type="file" name="file" required><br><br>
+
+        <label>Email Addresses:</label><br>
+        <textarea name="emails" rows="5" cols="50"></textarea><br><br>
+
+        <label>Dates (YYYY-MM-DD):</label><br>
+        <textarea name="dates" rows="5" cols="50"></textarea><br><br>
+
+        <button type="submit">Generate Report</button>
+    </form>
+
+    <h3>Results:</h3>
+    <table border="1" id="results-table">
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>Date</th>
+                <th>Email Count</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <br>
+    <a href="/download" target="_blank">Download CSV</a>
+
+    <script>
+        document.getElementById("report-form").addEventListener("submit", function(e) {
+            e.preventDefault();
+            let formData = new FormData(this);
+
+            fetch("/generate", {
+                method: "POST",
+                body: formData
+            }).then(response => response.json())
+              .then(data => {
+                  const tbody = document.querySelector("#results-table tbody");
+                  tbody.innerHTML = "";
+                  data.forEach(row => {
+                      tbody.innerHTML += `<tr><td>${row.sender_address}</td><td>${row.date}</td><td>${row.email_count}</td></tr>`;
+                  });
+              }).catch(err => alert("Error: " + err));
+        });
+    </script>
+</body>
+</html>
